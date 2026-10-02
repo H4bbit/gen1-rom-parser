@@ -1,0 +1,28 @@
+{
+	"name": "gen1-rom-parser",
+	"version": "0.1.0",
+	"description": "Modern TypeScript parser for Generation I Pokémon ROMs (Red/Blue first).",
+	"license": "MIT",
+	"author": "H4bbit",
+	"type": "module",
+	"engines": {
+		"node": ">=22.18"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"check": "biome check .",
+		"check:fix": "biome check --write .",
+		"test": "node --test \"tests/*.test.ts\"",
+		"test:roms": "node --test \"tests/roms.local.test.ts\" \"tests/names.local.test.ts\" \"tests/stats.local.test.ts\""
+	},
+	"keywords": [
+		"pokemon",
+		"gameboy",
+		"rom-parser",
+		"gen1"
+	],
+	"devDependencies": {
+		"@types/node": "^26.6.2",
+		"typescript": "5.9"
+	}
+}

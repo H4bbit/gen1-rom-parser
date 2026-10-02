@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Game ROMs and related binaries (copyrighted, never commit)
+*.gb
+*.gbc
+*.sav
+
+# Editor and OS junk
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

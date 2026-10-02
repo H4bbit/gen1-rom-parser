@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"target": "ES2024",
+		"lib": ["ES2024"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		// No emitted output: type checking only. Tests and scripts run
+		// directly on source via Node.js native type stripping.
+		"noEmit": true,
+		"strict": true,
+		// Out-of-bounds indexing must be visible to the type system so ROM
+		// readers are forced to handle it explicitly (AGENTS.md: validation).
+		"noUncheckedIndexedAccess": true,
+		// Exhaustive switch handling for discriminated unions (e.g. ROM variants).
+		"noFallthroughCasesInSwitch": true,
+		// Guarantees the source stays runnable under Node.js type stripping,
+		// with no build step between `node --test` and the code.
+		"erasableSyntaxOnly": true,
+		// Imports use explicit `.ts` extensions so the same source runs
+		// directly under Node.js type stripping with no build step.
+		// Only valid together with `noEmit` above.
+		"allowImportingTsExtensions": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
+}
