@@ -4,6 +4,16 @@
 // consumers have a single import. No runtime behavior lives here.
 
 export {
+	GEN1_MOVE_ENTRY_LENGTH,
+	GEN1_MOVE_FIRST_ID,
+	GEN1_MOVE_LAST_ID,
+	GEN1_MOVE_TABLE_COUNT,
+	GEN1_MOVE_TABLE_OFFSET,
+	type Gen1MoveData,
+	Gen1MoveError,
+	readGen1MoveData,
+} from "./gen1/Gen1Moves.ts";
+export {
 	GEN1_NAME_ENTRY_LENGTH,
 	GEN1_NAME_MAX_LENGTH,
 	GEN1_NAME_TABLE_ADDRESS,
