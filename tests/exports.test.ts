@@ -17,6 +17,7 @@ import {
 	RomReader,
 	readGen1BaseStats,
 	readGen1MoveData,
+	readGen1MoveNameEntry,
 	readGen1NameEntry,
 } from "gen1-rom-parser";
 
@@ -42,5 +43,6 @@ describe("package entry (dist)", () => {
 		const reader = new RomReader(Buffer.from([0x34, 0x12]));
 		assert.equal(reader.readUInt16LE(0), 0x1234);
 		assert.equal(typeof readGen1MoveData, "function");
+		assert.equal(typeof readGen1MoveNameEntry, "function");
 	});
 });
