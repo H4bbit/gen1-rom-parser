@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		// Compiled entry for external consumers. `src/index.ts` is the
+		// explicit public API; `src/gen1/` and `src/rom/` stay internal
+		// and are only reachable through it. Rewrites the `.ts` relative
+		// imports used by source (required for Node.js type stripping)
+		// to `.js` in emitted JS output.
+		"noEmit": false,
+		"rewriteRelativeImportExtensions": true,
+		"declaration": true,
+		"sourceMap": true,
+		"outDir": "dist"
+	},
+	"include": ["src/**/*.ts"]
+}

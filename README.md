@@ -11,7 +11,7 @@ such as battle simulators, APIs, research tools, and ROM-analysis projects.
 
 ## Status
 
-Early development.
+Early development, validated against real Red and Blue ROMs.
 
 The project has established its ROM-reading and identification layer plus
 the first Pokémon data structures: text decoding, the name table, the
@@ -73,6 +73,34 @@ results, but they are not runtime data sources for this parser.
 In particular, the project may use existing implementations as historical or
 technical references without treating their behavior as automatically correct.
 
+## Usage
+
+```sh
+npm install gen1-rom-parser
+npm run build   # only when consuming from a local checkout
+```
+
+```ts
+import { RomReader, identifyGen1Rom, readGen1BaseStats } from "gen1-rom-parser";
+import { readFileSync } from "node:fs";
+
+const reader = new RomReader(readFileSync("red.gb"));
+const identity = identifyGen1Rom(reader); // throws on anything but the known Red/Blue dump
+const bulbasaur = readGen1BaseStats(reader, 1);
+```
+
+The public API is the single entry point `src/index.ts` (shipped as
+`dist/index.js` with `dist/index.d.ts`). `src/rom/` and `src/gen1/` are
+internal implementation layers re-exported through that entry; import
+only from `"gen1-rom-parser"` — no subpath is exported. Source uses
+explicit `.ts` relative imports so it can run directly under Node.js
+native type stripping (enabled by default since Node.js v22.18.0); the
+compiled output rewrites them to `.js` for consumers. Node.js refuses
+type stripping for files inside `node_modules`
+(`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`), so published
+consumers must resolve to the built `dist/*.js`, never to TypeScript
+source — this is why the package ships compiled output instead of `src/`.
+
 ## Development
 
 Requirements:
@@ -86,15 +114,18 @@ prebuilt binary for every platform, so it is intentionally **not** an
 npm dependency).
 
 The project uses Node.js native TypeScript type stripping and the built-in
-`node:test` test runner, so no build step or test framework dependency is
-required.
+`node:test` test runner for development, so no test framework dependency
+is required. A compile step (`tsc -p tsconfig.build.json`, via
+`npm run build`) produces the consumable `dist/` output; `dist/` is
+generated and not committed.
 
 Commands:
 
 ```sh
 npm install
 npm run typecheck
-npm test       # portable suite; needs no ROM files
+npm run build    # emit dist/index.js + dist/index.d.ts for consumers
+npm test         # portable suite; needs no ROM files (builds dist first: pretest)
 npm run check
 ```
 
