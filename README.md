@@ -105,12 +105,14 @@ ROM-derived data as JSON for other projects (e.g. dataset generation):
 
 ```sh
 npm run build
-npm run --silent cli -- red.gb > dataset.json
+npm run cli -- red.gb > dataset.json
 ```
 
 (Build `dist/` explicitly with `npm run build` before using the CLI — the
 `cli` script only runs the compiled `dist/cli.js` and never rebuilds.
-`--silent` keeps npm's script banner out of the redirected JSON.)
+A project-level `.npmrc` with `loglevel=silent` keeps npm's script
+banner out of the redirected JSON, so `dataset.json` contains only the
+CLI's own stdout.)
 
 It takes exactly one ROM path (a Pokémon Red or Blue ROM file) and prints
 `{ "rom": { "variant" }, "pokemon": [...] }` (151 entries sorted by

@@ -8,6 +8,10 @@ coverage/
 *.gbc
 *.sav
 
+# Generated CLI datasets (never commit)
+dataset.json
+*_dataset.json
+
 # Editor and OS junk
 .vscode/
 .idea/
