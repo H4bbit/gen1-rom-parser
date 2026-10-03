@@ -14,7 +14,7 @@ import { RomReader } from "../src/rom/RomReader.ts";
 
 // Synthetic image: move-name strings at the real file offset. Only the
 // list bytes matter here.
-function makeRomWithMoveNames(lists: Array<Array<number>>): RomReader {
+function makeRomWithMoveNames(lists: Array<Array<number> | number>): RomReader {
 	const size = GEN1_MOVE_NAMES_OFFSET + lists.flat().length + 16;
 	const rom = Buffer.alloc(size, 0xaa);
 	Buffer.from(lists.flat()).copy(rom, GEN1_MOVE_NAMES_OFFSET);
