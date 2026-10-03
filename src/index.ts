@@ -34,9 +34,13 @@ export {
 	readGen1BaseStats,
 } from "./gen1/Gen1Stats.ts";
 export {
+	decodeGen1MoveName,
 	decodeGen1Name,
 	GEN1_TEXT_AZ_MAX,
 	GEN1_TEXT_AZ_MIN,
+	GEN1_TEXT_MOVE_HYPHEN,
+	GEN1_TEXT_MOVE_SPACE,
+	GEN1_TEXT_MOVE_SPECIALS,
 	GEN1_TEXT_PADDING,
 	GEN1_TEXT_SPECIALS,
 	GEN1_TEXT_TERMINATOR,

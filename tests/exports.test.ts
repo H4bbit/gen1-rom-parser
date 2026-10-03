@@ -10,6 +10,7 @@ import { describe, it } from "node:test";
 // entry contract.
 
 import {
+	decodeGen1MoveName,
 	decodeGen1Name,
 	GEN1_HEADER,
 	identifyVariant,
@@ -33,6 +34,7 @@ describe("package entry (dist)", () => {
 			decodeGen1Name([0x91, 0x87, 0x98, 0x83, 0x8e, 0x8d, 0x50]),
 			"RHYDON",
 		);
+		assert.equal(typeof decodeGen1MoveName, "function");
 	});
 
 	it("reads through RomReader from the built entry", () => {

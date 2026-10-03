@@ -9,7 +9,10 @@ import {
 	readGen1NameEntry,
 } from "../src/gen1/Gen1Names.ts";
 import {
+	decodeGen1MoveName,
 	decodeGen1Name,
+	GEN1_TEXT_MOVE_HYPHEN,
+	GEN1_TEXT_MOVE_SPACE,
 	GEN1_TEXT_PADDING,
 	GEN1_TEXT_TERMINATOR,
 	Gen1TextError,
@@ -133,5 +136,51 @@ describe("name table layout", () => {
 		assert.equal(GEN1_TEXT_TERMINATOR, 0x50);
 		assert.equal(GEN1_TEXT_PADDING, 0x50);
 		assert.equal(GEN1_NAME_ENTRY_LENGTH, 10);
+	});
+});
+
+describe("decodeGen1MoveName", () => {
+	it("decodes A–Z plus the move-name space and hyphen", () => {
+		assert.equal(GEN1_TEXT_MOVE_SPACE, 0x7f);
+		assert.equal(GEN1_TEXT_MOVE_HYPHEN, 0xe3);
+		assert.equal(
+			decodeGen1MoveName([0x8f, 0x8e, 0x94, 0x8d, 0x83, 0x50]),
+			"POUND",
+		);
+		// KARATE CHOP (space), SAND-ATTACK and DOUBLE-EDGE (hyphen).
+		assert.equal(
+			decodeGen1MoveName([
+				0x8a, 0x80, 0x91, 0x80, 0x93, 0x84, 0x7f, 0x82, 0x87, 0x8e, 0x8f, 0x50,
+			]),
+			"KARATE CHOP",
+		);
+		assert.equal(
+			decodeGen1MoveName([
+				0x92, 0x80, 0x8d, 0x83, 0xe3, 0x80, 0x93, 0x93, 0x80, 0x82, 0x8a, 0x50,
+			]),
+			"SAND-ATTACK",
+		);
+		assert.equal(
+			decodeGen1MoveName([
+				0x83, 0x8e, 0x94, 0x81, 0x8b, 0x84, 0xe3, 0x84, 0x83, 0x86, 0x84, 0x50,
+			]),
+			"DOUBLE-EDGE",
+		);
+	});
+
+	it("rejects the Pokémon-name specials in move context", () => {
+		// 0xE0 (apostrophe), 0xE8 (period), 0xEF/0xF5 (gender signs)
+		// were never observed in move names.
+		for (const byte of [0xe0, 0xe8, 0xef, 0xf5]) {
+			assert.throws(
+				() => decodeGen1MoveName([0x80, byte, 0x50]),
+				Gen1TextError,
+			);
+		}
+	});
+
+	it("keeps the Pokémon-name decoder rejecting the move-name bytes", () => {
+		assert.throws(() => decodeGen1Name([0x7f, 0x50]), Gen1TextError);
+		assert.throws(() => decodeGen1Name([0xe3, 0x50]), Gen1TextError);
 	});
 });
