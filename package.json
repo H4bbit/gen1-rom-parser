@@ -27,6 +27,7 @@
 	"scripts": {
 		"typecheck": "npm run build && tsc --noEmit",
 		"build": "tsc -p tsconfig.build.json",
+		"cli": "node dist/cli.js",
 		"pretest": "npm run build",
 		"prepack": "npm run build",
 		"check": "biome check .",

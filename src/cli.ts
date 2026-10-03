@@ -104,20 +104,33 @@ export function buildDataset(reader: RomReader): CliDataset {
 	return { rom: { variant: identity.variant }, pokemon };
 }
 
+const CLI_USAGE = "Usage: gen1-rom-parser <rom-path>";
+
 /**
- * Implements `gen1-rom-parser <rom>`: exactly one ROM path argument,
- * JSON document on stdout, diagnostics on stderr, non-zero exit on
- * invalid input or any parsing failure.
+ * Implements `gen1-rom-parser <rom-path>`: exactly one ROM path argument
+ * (a Pokémon Red or Blue ROM file), JSON document on stdout,
+ * diagnostics on stderr, non-zero exit on invalid input or any parsing
+ * failure. `-h`/`--help` prints usage on stdout with a zero exit code.
  */
 export function runCli(
 	args: ReadonlyArray<string>,
 	readFile: (path: string) => Buffer = readFileSync,
 ): CliResult {
-	if (args.length !== 1 || args[0] === undefined || args[0] === "") {
+	if (args.length === 1 && (args[0] === "-h" || args[0] === "--help")) {
+		return { exitCode: 0, stdout: `${CLI_USAGE}\n`, stderr: "" };
+	}
+	if (args.length === 0 || args[0] === undefined || args[0] === "") {
 		return {
 			exitCode: 1,
 			stdout: "",
-			stderr: "Usage: gen1-rom-parser <rom>\n",
+			stderr: `Error: missing ROM path.\n${CLI_USAGE}\n`,
+		};
+	}
+	if (args.length > 1) {
+		return {
+			exitCode: 1,
+			stdout: "",
+			stderr: `Error: expected exactly one ROM path but got ${args.length}.\n${CLI_USAGE}\n`,
 		};
 	}
 	let data: Buffer;

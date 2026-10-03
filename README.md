@@ -96,21 +96,29 @@ The package has two entry points sharing one implementation:
 
 - library: `import ... from "gen1-rom-parser"` (single entry
   `src/index.ts`, shipped as `dist/index.js` with `dist/index.d.ts`);
-- CLI: `node dist/cli.js <rom>` (thin entry `src/cli.ts`, shipped
-  as `dist/cli.js` via the `bin` field; `npx gen1-rom-parser` will
-  only resolve without a local build once the package is published).
+- CLI: `npm run cli -- <rom-path>` (thin entry `src/cli.ts`, built to
+  `dist/cli.js` and exposed via the `bin` field as `gen1-rom-parser`
+  once the package is installed).
 
 The library is the primary product; the CLI only wraps it to export
 ROM-derived data as JSON for other projects (e.g. dataset generation):
 
 ```sh
-node dist/cli.js red.gb > dataset.json
+npm run build
+npm run --silent cli -- red.gb > dataset.json
 ```
 
-It takes exactly one ROM path, prints `{ "rom": { "variant" },
-"pokemon": [...] }` (151 entries sorted by Pokédex number, each with
-`dex`, decoded `name` and `baseStats`) to stdout, and reports errors on
-stderr with a non-zero exit code.
+(Build `dist/` explicitly with `npm run build` before using the CLI — the
+`cli` script only runs the compiled `dist/cli.js` and never rebuilds.
+`--silent` keeps npm's script banner out of the redirected JSON.)
+
+It takes exactly one ROM path (a Pokémon Red or Blue ROM file) and prints
+`{ "rom": { "variant" }, "pokemon": [...] }` (151 entries sorted by
+Pokédex number, each with `dex`, decoded `name` and `baseStats`) to
+stdout. `-h`/`--help` prints `Usage: gen1-rom-parser <rom-path>` on
+stdout with a zero exit code. Any other invalid invocation (missing path,
+extra arguments, unreadable file, invalid ROM) reports an `Error: ...`
+on stderr followed by the usage line, with a non-zero exit code.
 
 The public API is the single entry point `src/index.ts` (shipped as
 `dist/index.js` with `dist/index.d.ts`). `src/rom/` and `src/gen1/` are

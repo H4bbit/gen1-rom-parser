@@ -128,18 +128,34 @@ describe("CLI dataset builder", () => {
 });
 
 describe("runCli argument and input handling", () => {
+	it("prints usage on stdout for -h/--help", () => {
+		for (const flag of ["-h", "--help"]) {
+			const result = runCli([flag], () => {
+				assert.fail("help must not read any file");
+			});
+			assert.equal(result.exitCode, 0);
+			assert.equal(result.stderr, "");
+			assert.equal(result.stdout, "Usage: gen1-rom-parser <rom-path>\n");
+		}
+	});
+
 	it("rejects a missing ROM argument", () => {
 		const result = runCli([]);
 		assert.equal(result.exitCode, 1);
 		assert.equal(result.stdout, "");
-		assert.match(result.stderr, /Usage: gen1-rom-parser <rom>/);
+		assert.match(result.stderr, /Error: missing ROM path\./);
+		assert.match(result.stderr, /Usage: gen1-rom-parser <rom-path>/);
 	});
 
 	it("rejects extra arguments", () => {
 		const result = runCli(["a.gb", "b.gb"], () => makeCliRom());
 		assert.equal(result.exitCode, 1);
 		assert.equal(result.stdout, "");
-		assert.match(result.stderr, /Usage: gen1-rom-parser <rom>/);
+		assert.match(
+			result.stderr,
+			/Error: expected exactly one ROM path but got 2\./,
+		);
+		assert.match(result.stderr, /Usage: gen1-rom-parser <rom-path>/);
 	});
 
 	it("reports an unreadable file instead of throwing", () => {
@@ -224,8 +240,16 @@ describe("CLI build artifact (dist)", () => {
 			};
 			assert.equal(failure.status, 1);
 			assert.equal(failure.stdout, "");
-			assert.match(failure.stderr, /Usage: gen1-rom-parser <rom>/);
+			assert.match(failure.stderr, /Error: missing ROM path\./);
+			assert.match(failure.stderr, /Usage: gen1-rom-parser <rom-path>/);
 		}
+	});
+
+	it("prints usage on stdout for --help (compiled)", () => {
+		const stdout = execFileSync("node", ["dist/cli.js", "--help"], {
+			encoding: "utf8",
+		});
+		assert.equal(stdout, "Usage: gen1-rom-parser <rom-path>\n");
 	});
 
 	it("exits non-zero with stderr on an invalid ROM (compiled)", () => {
