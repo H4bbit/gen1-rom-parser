@@ -89,6 +89,25 @@ const identity = identifyGen1Rom(reader); // throws on anything but the known Re
 const bulbasaur = readGen1BaseStats(reader, 1);
 ```
 
+The package has two entry points sharing one implementation:
+
+- library: `import ... from "gen1-rom-parser"` (single entry
+  `src/index.ts`, shipped as `dist/index.js` with `dist/index.d.ts`);
+- CLI: `npx gen1-rom-parser <rom>` (thin entry `src/cli.ts`, shipped
+  as `dist/cli.js` via the `bin` field).
+
+The library is the primary product; the CLI only wraps it to export
+ROM-derived data as JSON for other projects (e.g. dataset generation):
+
+```sh
+npx gen1-rom-parser red.gb > dataset.json
+```
+
+It takes exactly one ROM path, prints `{ "rom": { "variant" },
+"pokemon": [...] }` (151 entries sorted by Pokédex number, each with
+`dex`, decoded `name` and `baseStats`) to stdout, and reports errors on
+stderr with a non-zero exit code.
+
 The public API is the single entry point `src/index.ts` (shipped as
 `dist/index.js` with `dist/index.d.ts`). `src/rom/` and `src/gen1/` are
 internal implementation layers re-exported through that entry; import
@@ -124,7 +143,7 @@ Commands:
 ```sh
 npm install
 npm run typecheck
-npm run build    # emit dist/index.js + dist/index.d.ts for consumers
+npm run build    # emit dist/index.js + dist/index.d.ts and dist/cli.js for consumers
 npm test         # portable suite; needs no ROM files (builds dist first: pretest)
 npm run check
 ```
