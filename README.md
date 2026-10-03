@@ -17,8 +17,9 @@ The project has established its ROM-reading and identification layer plus
 the first Pokémon data structures: text decoding, the name table, the
 internal-index → Pokédex-number order table, and the base-stats table
 (see `docs/rom-foundation.md`, `docs/text-and-names.md`, and
-`docs/base-stats.md`). Validated domain types and dataset export have not
-been implemented yet.
+`docs/base-stats.md`). The first validated dataset export is already
+implemented: the CLI builds a deterministic dataset of 151 Pokémon
+(`dex`, decoded `name` and `baseStats`) from the ROM (see Usage below).
 
 ## Goals
 
@@ -75,9 +76,11 @@ technical references without treating their behavior as automatically correct.
 
 ## Usage
 
+The package is not published to npm. Consume it from a local checkout:
+
 ```sh
-npm install gen1-rom-parser
-npm run build   # only when consuming from a local checkout
+npm install  # install dev dependencies in a local checkout
+npm run build
 ```
 
 ```ts
@@ -93,14 +96,15 @@ The package has two entry points sharing one implementation:
 
 - library: `import ... from "gen1-rom-parser"` (single entry
   `src/index.ts`, shipped as `dist/index.js` with `dist/index.d.ts`);
-- CLI: `npx gen1-rom-parser <rom>` (thin entry `src/cli.ts`, shipped
-  as `dist/cli.js` via the `bin` field).
+- CLI: `node dist/cli.js <rom>` (thin entry `src/cli.ts`, shipped
+  as `dist/cli.js` via the `bin` field; `npx gen1-rom-parser` will
+  only resolve without a local build once the package is published).
 
 The library is the primary product; the CLI only wraps it to export
 ROM-derived data as JSON for other projects (e.g. dataset generation):
 
 ```sh
-npx gen1-rom-parser red.gb > dataset.json
+node dist/cli.js red.gb > dataset.json
 ```
 
 It takes exactly one ROM path, prints `{ "rom": { "variant" },
@@ -116,9 +120,10 @@ explicit `.ts` relative imports so it can run directly under Node.js
 native type stripping (enabled by default since Node.js v22.18.0); the
 compiled output rewrites them to `.js` for consumers. Node.js refuses
 type stripping for files inside `node_modules`
-(`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`), so published
-consumers must resolve to the built `dist/*.js`, never to TypeScript
-source — this is why the package ships compiled output instead of `src/`.
+(`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`), so consumers resolving
+through `node_modules` must resolve to the built `dist/*.js`, never to
+TypeScript source — this is why the package ships compiled output
+instead of `src/`.
 
 ## Development
 
