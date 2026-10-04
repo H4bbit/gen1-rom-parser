@@ -35,17 +35,24 @@ The move data table starts at ROM file offset `0x38000`:
 **Provenance (observed fact + assumption):** unlike the Pokémon name
 table — located through a stored bank/pointer pair at file `0x2FA3` /
 `0x2FAE` (see `text-and-names.md` §1) — no stored bank byte or pointer
-locating the move table was found. `0x38000` sits at the start of ROM
-bank `0x0E` (`0x38000 >> 14 = 14`, i.e. CPU `0x4000`), and a search for
-a `00 40` (CPU `0x4000`) address byte-pair stored near a `0x0E` bank
-byte found only scattered, unconvincing candidates (offsets `0x1A05C`,
-`0x4FEF5`, `0x5D400`, `0x70B7A`, `0x785FF`, each ±8 bytes — none with
-the tight bank+address pairing shape the name-table pointer has).
+locating the move table was found; none is expected in a same-bank
+reference, which carries no bank byte by construction. `0x38000` sits
+at the start of ROM bank `0x0E` (`0x38000 >> 14 = 14`, i.e. CPU
+`0x4000`), and a same-bank `LD HL,$4000` (`21 00 40`) search finds two
+references in bank `0x0E`: `0x39888` (routine `0x39884–0x3989A`:
+`PUSH HL/DE/BC; DEC A; LD HL,$4000; LD BC,$0006; CALL $3A87; …`) and
+`0x3B031` (routine bounded by `RET`s at `0x3B04D`/`0x3B056`:
+`… DEC A; LD HL,$4000; LD BC,$0006; CALL $3A87; …`). Both are same-bank
+code references (**interpretation** of code, cross-evidence only), and
+`LD HL,$4000` occurs 9 more times ROM-wide in other banks (discarded
+as candidates). A `00 40` byte-pair search near a `0x0E` bank byte
+found only scattered candidates (offsets `0x1A05C`, `0x4FEF5`,
+`0x5D400`, `0x70B7A`, `0x785FF`, each ±8 bytes — none with the tight
+bank+address pairing shape the name-table pointer has).
 **Assumption:** `0x38000` is therefore an empirically observed
 location, like the base-stats `0x383DE` and the order-table `0x41024` —
-byte-verified in both ROMs, without stored-pointer provenance. A future
-pointer discovery would promote it to a resolved location without
-changing the parser contract.
+byte-verified in both ROMs. A future pointer discovery would promote
+it to a resolved location without changing the parser contract.
 
 ## 2. Entry layout (observed fact + interpretation)
 
@@ -139,9 +146,13 @@ offset `0xB0000`, each terminated by `0x50`, in move-id order:
 **Provenance (observed fact + assumption):** `0xB0000` is the start of
 ROM bank `0x2C` (`0xB0000 >> 14 = 44 = 0x2C`, i.e. CPU `0x4000`), and
 both tables sit at bank starts — but as with the data table (§1), no
-stored bank/pointer pair locating the name list was found (search for
-a `00 40` address near a `0x2C` bank byte gave only scattered
-candidates at `0x38A25`, `0x5C923`, `0x7381A`). **Assumption:**
+stored bank/pointer pair locating the name list was found; none is
+expected in a same-bank reference, which carries no bank byte by
+construction. A same-bank `LD HL,$4000` (`21 00 40`) search finds no
+reference in bank `0x2C` at all (and no `LD HL,nn` with any banked
+target exists in `0xB0000–0xB3FFF`), while a `00 40` byte-pair search
+near a `0x2C` bank byte gave only scattered candidates at `0x38A25`,
+`0x5C923`, `0x7381A` (discarded). **Assumption:**
 `0xB0000` is an empirically observed location, byte-verified in both
 ROMs, without stored-pointer provenance.
 
