@@ -4,6 +4,15 @@
 // consumers have a single import. No runtime behavior lives here.
 
 export {
+	GEN1_EFFECTIVENESS_ENTRY_LENGTH,
+	GEN1_EFFECTIVENESS_MAX_ENTRIES,
+	GEN1_EFFECTIVENESS_SENTINEL,
+	GEN1_EFFECTIVENESS_TABLE_OFFSET,
+	type Gen1EffectivenessEntry,
+	Gen1EffectivenessError,
+	readGen1EffectivenessTable,
+} from "./gen1/Gen1Effectiveness.ts";
+export {
 	GEN1_MOVE_NAME_MAX_LENGTH,
 	GEN1_MOVE_NAME_MIN_LENGTH,
 	GEN1_MOVE_NAMES_COUNT,

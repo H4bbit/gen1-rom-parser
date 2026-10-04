@@ -17,6 +17,7 @@ import {
 	identifyVariant,
 	RomReader,
 	readGen1BaseStats,
+	readGen1EffectivenessTable,
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
@@ -48,5 +49,6 @@ describe("package entry (dist)", () => {
 		assert.equal(typeof readGen1MoveNameEntry, "function");
 		assert.equal(typeof readGen1TypeNameEntry, "function");
 		assert.equal(typeof decodeGen1TypeName, "function");
+		assert.equal(typeof readGen1EffectivenessTable, "function");
 	});
 });
