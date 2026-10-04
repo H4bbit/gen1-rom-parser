@@ -96,6 +96,19 @@ export {
 	Gen1TextError,
 } from "./gen1/Gen1Text.ts";
 export {
+	decodeGen1TmHm,
+	GEN1_HM_COUNT,
+	GEN1_TM_COUNT,
+	GEN1_TMHM_BITFIELD_LENGTH,
+	GEN1_TMHM_COUNT,
+	GEN1_TMHM_FIRST_MOVE_ID,
+	GEN1_TMHM_LAST_MOVE_ID,
+	GEN1_TMHM_TABLE_OFFSET,
+	Gen1TmHmError,
+	readGen1TmHmLearnset,
+	readGen1TmHmTable,
+} from "./gen1/Gen1TmHm.ts";
+export {
 	GEN1_TYPE_FIRST_ID,
 	GEN1_TYPE_LAST_ID,
 	GEN1_TYPE_NAME_MAX_LENGTH,

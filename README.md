@@ -16,14 +16,15 @@ Early development, validated against real Red and Blue ROMs.
 The project has established its ROM-reading and identification layer plus
 the first Pokémon data structures: text decoding, the name table, the
 internal-index → Pokédex-number order table, the base-stats table, the
-move-data table, the move-name list, the type-name pointer table, and
-the type-effectiveness table (see `docs/rom-foundation.md`,
+move-data table, the move-name list, the type-name pointer table,
+the type-effectiveness table, the level-up learnset table, and the
+TM/HM machine table (see `docs/rom-foundation.md`,
 `docs/text-and-names.md`, `docs/base-stats.md`, `docs/moves.md`,
-`docs/learnsets.md`, and
+`docs/learnsets.md`, `docs/tmhm.md`, and
 `docs/types.md`). The first validated dataset export is already
 implemented: the CLI builds a deterministic `{ meta, pokemon, moves,
 types }` dataset from the ROM — identity, 151 Pokémon (each with base
-stats and its level-up learnset), 165 moves,
+stats and its level-up + TM/HM learnsets), 165 moves,
 27 type names, and the 82-entry effectiveness table (see `docs/dataset.md`
 and Usage below). Structure evidence lives under `docs/`; all fixed
 ROM offsets are for the investigated USA/Europe SGB Enhanced dumps.

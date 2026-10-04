@@ -28,6 +28,7 @@ import {
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
+	readGen1TmHmLearnset,
 } from "./index.ts";
 
 export interface CliPokemonBaseStats {
@@ -63,6 +64,8 @@ export interface CliPokemonEntry {
 	readonly baseStats: CliPokemonBaseStats;
 	readonly learnset: {
 		readonly levelUp: ReadonlyArray<CliLevelUpMove>;
+		/** Raw TM/HM move ids in slot order (TM01–TM50, then HM01–HM05). */
+		readonly tmhm: ReadonlyArray<number>;
 	};
 }
 
@@ -133,7 +136,7 @@ export interface CliResult {
  * library errors (`RomIdentityError`, `Gen1OrderError`,
  * `Gen1NameError`, `Gen1StatsError`, `Gen1MoveError`,
  * `Gen1MoveNameError`, `Gen1TypeNameError`,
- * `Gen1EffectivenessError`, `Gen1LearnsetError`, …) callers already handle.
+ * `Gen1EffectivenessError`, `Gen1LearnsetError`, `Gen1TmHmError`, …) callers already handle.
  */
 export function buildDataset(reader: RomReader): CliDataset {
 	const identity = identifyGen1Rom(reader);
@@ -166,6 +169,7 @@ export function buildDataset(reader: RomReader): CliDataset {
 			},
 			learnset: {
 				levelUp: [...readGen1LevelUpLearnset(reader, dex)],
+				tmhm: [...readGen1TmHmLearnset(reader, dex)],
 			},
 		});
 	}

@@ -89,6 +89,10 @@ for (const { envName, label, variant, title } of cases) {
 						{ level: 33, move: 97 },
 						{ level: 43, move: 87 },
 					],
+					tmhm: [
+						5, 25, 92, 34, 36, 38, 6, 66, 69, 99, 85, 87, 102, 104, 115, 117,
+						129, 130, 156, 86, 164, 148,
+					],
 				});
 				assert.equal(dataset.types.names[23]?.id, 23);
 				assert.equal(dataset.types.names[23]?.name, "ELECTRIC");
@@ -106,6 +110,7 @@ for (const { envName, label, variant, title } of cases) {
 						dex: number;
 						learnset: {
 							levelUp: Array<{ level: number; move: number }>;
+							tmhm: Array<number>;
 						};
 					}>;
 					moves: Array<{ id: number }>;
@@ -129,9 +134,13 @@ for (const { envName, label, variant, title } of cases) {
 							entry.learnset.levelUp.every(
 								(pair) =>
 									Number.isInteger(pair.level) && Number.isInteger(pair.move),
+							) &&
+							Array.isArray(entry.learnset?.tmhm) &&
+							entry.learnset.tmhm.every(
+								(move) => Number.isInteger(move) && move >= 1 && move <= 165,
 							),
 					),
-					"every pokemon entry carries learnset.levelUp pairs",
+					"every pokemon entry carries learnset.levelUp pairs and learnset.tmhm move ids",
 				);
 				assert.deepEqual(parsed.pokemon[24]?.learnset, {
 					levelUp: [
@@ -141,7 +150,21 @@ for (const { envName, label, variant, title } of cases) {
 						{ level: 33, move: 97 },
 						{ level: 43, move: 87 },
 					],
+					tmhm: [
+						5, 25, 92, 34, 36, 38, 6, 66, 69, 99, 85, 87, 102, 104, 115, 117,
+						129, 130, 156, 86, 164, 148,
+					],
 				});
+				// Mew's all-0xFF bitfield teaches the full 55-move table.
+				assert.deepEqual(
+					parsed.pokemon[150]?.learnset.tmhm,
+					[
+						5, 13, 14, 18, 25, 92, 32, 34, 36, 38, 61, 55, 58, 59, 63, 6, 66,
+						68, 69, 99, 72, 76, 82, 85, 87, 89, 90, 91, 94, 100, 102, 104, 115,
+						117, 118, 120, 121, 126, 129, 130, 135, 138, 143, 156, 86, 149, 153,
+						157, 161, 164, 15, 19, 57, 70, 148,
+					],
+				);
 				assert.equal(parsed.moves.length, 165);
 				assert.equal(parsed.types.names.length, 27);
 				assert.equal(parsed.types.effectiveness.length, 82);

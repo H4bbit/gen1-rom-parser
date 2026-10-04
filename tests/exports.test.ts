@@ -16,6 +16,7 @@ import {
 	GEN1_EFFECTIVENESS_OBSERVED_COUNT,
 	GEN1_HEADER,
 	Gen1LearnsetError,
+	Gen1TmHmError,
 	identifyVariant,
 	RomReader,
 	readGen1BaseStats,
@@ -24,6 +25,8 @@ import {
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
+	readGen1TmHmLearnset,
+	readGen1TmHmTable,
 	readGen1TypeNameEntry,
 } from "gen1-rom-parser";
 
@@ -54,6 +57,9 @@ describe("package entry (dist)", () => {
 		assert.equal(typeof decodeGen1TypeName, "function");
 		assert.equal(typeof readGen1LevelUpLearnset, "function");
 		assert.equal(typeof Gen1LearnsetError, "function");
+		assert.equal(typeof readGen1TmHmTable, "function");
+		assert.equal(typeof readGen1TmHmLearnset, "function");
+		assert.equal(typeof Gen1TmHmError, "function");
 		assert.equal(typeof readGen1EffectivenessTable, "function");
 		assert.equal(typeof GEN1_EFFECTIVENESS_OBSERVED_COUNT, "number");
 	});

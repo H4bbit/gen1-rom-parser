@@ -42,7 +42,8 @@ key order is `meta`, `pokemon`, `moves`, `types`.
         "levelUp": [
           { "level": 7, "move": 73 },
           { "level": 13, "move": 22 }
-        ]
+        ],
+        "tmhm": [14, 92, 34]
       }
     }
   ],
@@ -83,14 +84,18 @@ key order is `meta`, `pokemon`, `moves`, `types`.
   move; the move table itself is in `moves.md`), `growthRate`,
   `tmhm` as a plain `number[]` (raw 7-byte bitfield; no bit is
   decoded here), and `padding` (the raw trailing byte).
-- **pokemon.learnset** — `{ levelUp: [{ level, move }, …] }` from
-  `readGen1LevelUpLearnset` (ROM order, never sorted; see
+- **pokemon.learnset** — `{ levelUp: [{ level, move }, …], tmhm: [move, …] }`.
+  `levelUp` from `readGen1LevelUpLearnset` (ROM order, never sorted; see
   `learnsets.md`). `level` is the raw stored level, `move` is the raw
   move id 1–165 (the move table itself is in `moves.md`). Empty arrays
   are ROM data: 12 real species have truly empty learnsets in both
   dumps (dex 10, 11, 13, 14, 26, 36, 38, 40, 59, 63, 121, 132 — see
-  `learnsets.md` §5). Evolution records are skipped, not exposed;
-  TM/HM decoding is out of scope here.
+  `learnsets.md` §5). Evolution records are skipped, not exposed.
+  `tmhm` from `readGen1TmHmLearnset` (slot order TM01–TM50 then
+  HM01–HM05; see `tmhm.md`): raw move ids 1–165, joined to names via
+  the top-level `moves` array. Empty arrays are ROM data: 6 species
+  have all-zero TM/HM bitfields in both dumps (dex 10, 11, 13, 14,
+  129, 132 — see `tmhm.md` §4).
 - **moves** — exactly ids 1–165 in order. `name` from the move-name
   decoder (`readGen1MoveNameEntry` + `decodeGen1MoveName`); numeric
   fields from `readGen1MoveData` (`animationId`, raw `effect`,

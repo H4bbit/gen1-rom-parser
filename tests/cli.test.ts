@@ -39,6 +39,10 @@ import {
 } from "../src/gen1/Gen1Stats.ts";
 import { GEN1_TEXT_TERMINATOR } from "../src/gen1/Gen1Text.ts";
 import {
+	GEN1_TMHM_COUNT,
+	GEN1_TMHM_TABLE_OFFSET,
+} from "../src/gen1/Gen1TmHm.ts";
+import {
 	GEN1_TYPE_NAMES_POINTER_COUNT,
 	GEN1_TYPE_NAMES_POINTER_TABLE_OFFSET,
 	GEN1_TYPE_NAMES_REGION_START,
@@ -128,6 +132,10 @@ function makeCliRom(): Buffer {
 		rom[GEN1_ORDER_TABLE_OFFSET + index] = dex;
 		const entry = Buffer.alloc(GEN1_BASE_STATS_ENTRY_LENGTH, dex & 0xff);
 		entry[0] = dex;
+		// Zero the TM/HM bitfield (offsets 0x14-0x1A) so the synthetic
+		// dataset decodes to an empty tmhm list; levelUp coverage owns
+		// the learnset assertions here.
+		entry.fill(0x00, 20, 27);
 		entry[GEN1_BASE_STATS_ENTRY_LENGTH - 1] = 0x00;
 		const offset =
 			dex <= 150
@@ -167,6 +175,14 @@ function makeCliRom(): Buffer {
 		);
 	}
 	effectivenessBytes().copy(rom, GEN1_EFFECTIVENESS_TABLE_OFFSET);
+
+	// Synthetic machine table: slot s teaches move s + 1, so every
+	// species bitfield decodes without copying real ROM bytes. The
+	// synthetic base-stats bitfields below are all zero, so every
+	// pokemon entry decodes to an empty tmhm list here.
+	for (let slot = 0; slot < GEN1_TMHM_COUNT; slot++) {
+		rom[GEN1_TMHM_TABLE_OFFSET + slot] = slot + 1;
+	}
 
 	// Synthetic level-up learnsets: one minimal entry per internal
 	// index used by the pokemon loop (dex d -> index d - 1 here), each
@@ -212,6 +228,7 @@ interface CliJsonPokemon {
 	readonly baseStats: { readonly dexNumber: number };
 	readonly learnset: {
 		readonly levelUp: Array<{ readonly level: number; readonly move: number }>;
+		readonly tmhm: Array<number>;
 	};
 }
 
@@ -281,6 +298,7 @@ describe("CLI dataset builder", () => {
 			]);
 			assert.deepEqual(entry?.learnset, {
 				levelUp: [{ level: 5, move: 1 }],
+				tmhm: [],
 			});
 		}
 		assert.equal(dataset.moves.length, GEN1_MOVE_LAST_ID);
@@ -416,6 +434,7 @@ describe("runCli argument and input handling", () => {
 		assert.equal(parsed.pokemon[150]?.dex, 151);
 		assert.deepEqual(parsed.pokemon[0]?.learnset, {
 			levelUp: [{ level: 5, move: 1 }],
+			tmhm: [],
 		});
 		assert.equal(parsed.moves.length, GEN1_MOVE_LAST_ID);
 		assert.equal(parsed.moves[0]?.id, 1);
@@ -459,6 +478,7 @@ describe("CLI build artifact (dist)", () => {
 		assert.equal(typeof parsed.pokemon[0]?.baseStats, "object");
 		assert.deepEqual(parsed.pokemon[0]?.learnset, {
 			levelUp: [{ level: 5, move: 1 }],
+			tmhm: [],
 		});
 		assert.equal(parsed.moves.length, GEN1_MOVE_LAST_ID);
 		assert.equal(parsed.types.names.length, GEN1_TYPE_NAMES_POINTER_COUNT);
