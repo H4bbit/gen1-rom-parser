@@ -220,16 +220,19 @@ base-stats type domain (§3) in both ROMs.
 
 ## 8. What was deliberately NOT established
 
-- **Unknown:** the meaning of any type id or effect id. The parser
-  exposes raw numbers; type/effect enums are a later step.
+- **Unknown:** the meaning of any type id or effect id beyond the
+  established id→name map. The parser exposes raw numbers;
+  type/effect enums are a later step. (The type-id→name map itself —
+  including aliases and unused BIRD — is established in `types.md` §2.)
 - **Unknown:** the percent conversion of the accuracy byte. The 0–255
   scale is an interpretation supported by `100 → 0xFF`, `95 → 0xF2`,
   `85 → 0xD8`; the exact rounding rule (and the `0x4C` value, the
   lowest observed) was not established. The parser does not convert.
 - **Unknown:** the meaning of power `0x01` beyond the observed value.
   Fixed-damage semantics come from the disassembly, not the ROM.
-- **Unknown:** whether `0x50` terminates all Gen I strings or only the
-  tables investigated (established here for move names only).
+- **Unknown:** whether `0x50` terminates Gen I strings beyond the
+  tables investigated here (move names) plus Pokémon names
+  (`text-and-names.md`) and type names (`types.md` §2).
 - **Unknown:** the rest of the Gen I charset beyond A–Z, space,
   hyphen, and the four Pokémon-name specials. The decoders reject
   everything else rather than inheriting reference tables.

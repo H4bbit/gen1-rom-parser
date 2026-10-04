@@ -16,7 +16,29 @@ key order is `meta`, `pokemon`, `moves`, `types`.
     "globalChecksumValid": true
   },
   "pokemon": [
-    { "dex": 1, "name": "BULBASAUR", "baseStats": { "...": "..." } }
+    {
+      "dex": 1,
+      "name": "BULBASAUR",
+      "baseStats": {
+        "dexNumber": 1,
+        "hp": 45,
+        "attack": 49,
+        "defense": 49,
+        "speed": 45,
+        "special": 65,
+        "type1": 22,
+        "type2": 3,
+        "catchRate": 45,
+        "baseExp": 64,
+        "spriteSize": 85,
+        "frontSprite": 16384,
+        "backSprite": 16613,
+        "level1Moves": [33, 45, 0, 0],
+        "growthRate": 3,
+        "tmhm": [164, 3, 56, 192, 3, 8, 6],
+        "padding": 0
+      }
+    }
   ],
   "moves": [
     {
@@ -43,14 +65,26 @@ key order is `meta`, `pokemon`, `moves`, `types`.
   `romSizeBytes`, `bankCount`, and the two checksum verdicts as
   booleans (`headerChecksum.valid`, `globalChecksum.valid`).
 - **pokemon** — 151 entries sorted by `dex` ascending, each with
-  `dex`, decoded `name`, and `baseStats` (same field shape as the
-  pre-Phase-1 CLI output). Sourced from the existing pokemon loop in
-  `buildDataset` (`findGen1IndexByDex` + `decodeGen1Name` +
-  `readGen1BaseStats`).
+  `dex`, decoded `name`, and `baseStats`. Sourced from the existing
+  pokemon loop in `buildDataset` (`findGen1IndexByDex` +
+  `decodeGen1Name` + `readGen1BaseStats`). The `baseStats` object
+  matches `CliPokemonBaseStats` in `src/cli.ts` field for field:
+  `dexNumber` (the stored entry id, same value as the parent `dex` —
+  both are emitted), `hp`, `attack`, `defense`, `speed`, `special`,
+  raw type ids `type1`/`type2` (id→name map in `types.md` §2),
+  `catchRate`, `baseExp`, `spriteSize`, raw sprite CPU addresses
+  `frontSprite`/`backSprite`, raw move ids `level1Moves` (`0` = no
+  move; the move table itself is in `moves.md`), `growthRate`,
+  `tmhm` as a plain `number[]` (raw 7-byte bitfield; no bit is
+  decoded here), and `padding` (the raw trailing byte).
 - **moves** — exactly ids 1–165 in order. `name` from the move-name
   decoder (`readGen1MoveNameEntry` + `decodeGen1MoveName`); numeric
   fields from `readGen1MoveData` (`animationId`, raw `effect`,
-  `power`, raw `type`, raw `accuracy`, `pp`).
+  `power`, raw `type`, raw `accuracy`, `pp`). `animationId` is the
+  stored entry id byte, validated equal to the move id
+  (`entry[0] === id`) — the name “animation” is disassembly labeling
+  (interpretation), not an extra ROM-discovered meaning beyond the id
+  byte (see `moves.md` §2).
 - **types.names** — exactly 27 entries, ids `0x00–0x1A` in order.
   `name` from the type-name decoder (`readAllGen1TypeNameEntries` +
   `decodeGen1TypeName`, A–Z only).

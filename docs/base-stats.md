@@ -46,21 +46,28 @@ Each entry is 28 bytes. Offsets below are within one entry:
 | --- | --- | --- |
 | 0x00 | entry id | **Observed fact:** equals the 1-based slot number (1–150); see §1. |
 | 0x01–0x05 | five stat bytes | **Interpretation** (field order only): HP, Attack, Defense, Speed, Special — byte positions match the reference's `buffer[1..5]` mapping and the public species structure; spot values match known species (§4). |
-| 0x06–0x07 | two type bytes | **Interpretation** (positions only): type 1 / type 2. |
+| 0x06–0x07 | two type bytes | **Interpretation** (positions only): type 1 / type 2 (raw ids; id→name map in `types.md` §2). |
 | 0x08 | catch rate | **Interpretation** (position only). |
 | 0x09 | base experience yield | **Interpretation** (position only). |
 | 0x0A | front-sprite dimensions byte | **Interpretation** (position only). |
 | 0x0B–0x0C | front-sprite pointer (LE 16-bit CPU address) | **Observed fact:** every one of the 150 values lies in `0x4000–0x7FFF` (banked window). **Interpretation:** sprite-pointer position, per the reference. |
 | 0x0D–0x0E | back-sprite pointer (LE 16-bit CPU address) | Same status as front-sprite pointer. |
-| 0x0F–0x12 | four level-1 move bytes (`0` = no move) | **Interpretation** (positions only). |
+| 0x0F–0x12 | four level-1 move bytes (`0` = no move) | **Interpretation** (positions only; raw move ids, see `moves.md`). |
 | 0x13 | growth-rate byte | **Interpretation** (position only). |
 | 0x14–0x1A | seven TM/HM bitfield bytes | **Interpretation** (positions only): 7 bytes = 56 bits cover 50 TMs + 5 HMs + 1 spare, but no bit was decoded here. |
 | 0x1B | padding byte | **Observed fact:** `0x00` in all 150 main-table entries in both ROMs (§3). |
 
 The parser exposes every field as a **raw number** (sprite pointers as
 raw CPU addresses, moves/growth as raw ids, TM/HM as a raw 7-byte
-`Buffer`, padding as a raw byte). No semantic enums are assigned: type,
-move, growth-rate, and TM-bit meanings are **unknown** at this layer.
+`Buffer`, padding as a raw byte). At this layer no semantic enums are
+assigned: type bytes, move ids, growth-rate ids, and TM-bit assignments
+stay raw numbers here. That is a layer boundary, not project-wide
+ignorance: the full type-id→name map — including the NORMAL aliases
+(`0x09–0x13`), the named-but-unused BIRD (`0x06`), and the union of ids
+actually used by stats/moves/effectiveness — is documented in `types.md`
+§2–§3 (see also `types.md` §8 for what remains uninterpreted there).
+Level-1 move ids likewise stay raw here; the move table itself is
+documented in `moves.md`.
 
 Spot entries (Red; Blue byte-identical), given as full 28-byte rows:
 
@@ -150,7 +157,12 @@ stored bank/pointer pair. This matches how the order table at
 `text-and-names.md` §4): the location is empirically observed in both
 ROMs rather than derived from ROM-stored addressing. If a future ROM
 revision moves these tables, the constants must be re-established —
-they are not decoded from the image.
+they are not decoded from the image. Evidence-level note (for
+comparison with `moves.md` §1 and `types.md` §1/§4): no stored
+bank/pointer pair was found for `0x383DE`/`0x425B`, and no same-bank
+`LD HL,nn` code-reference hunt for these locations is recorded — the
+evidence here is the byte census alone plus reference-formula agreement
+(§7), not a stored-pointer or code-reference provenance.
 
 ## 7. Reference comparison
 
@@ -177,11 +189,15 @@ they are not decoded from the image.
 
 ## 8. What was deliberately NOT established
 
-- **Unknown:** the semantic values of the type bytes (observed domains:
-  type1 ∈ `{0x00, 0x01, 0x03, 0x04, 0x05, 0x07, 0x08, 0x14–0x1A}`,
-  type2 ∈ same plus `0x02`), the move ids, the growth-rate ids
-  (observed domain `{0x00, 0x03, 0x04, 0x05}`), and the TM/HM bit
-  assignments. Raw numbers only.
+- **At this layer only (not project-wide):** the base-stats parser assigns
+  no meaning to the type bytes (observed domains: type1 ∈
+  `{0x00, 0x01, 0x03, 0x04, 0x05, 0x07, 0x08, 0x14–0x1A}`, type2 ∈ same
+  plus `0x02`), the move ids, the growth-rate ids (observed domain
+  `{0x00, 0x03, 0x04, 0x05}`), or the TM/HM bit assignments. Raw numbers
+  only. The type-id meanings that *are* established project-wide — the
+  id→name map, the `0x09–0x13` NORMAL aliases, the unused `0x06` BIRD,
+  and the used-id union across stats/moves/effectiveness — live in
+  `types.md` §2–§3.
 - **Unknown:** the sprite-pointer bank rule. The reference keys it by
   internal index (`0x14 → bank 1`, `0xB5 → bank 0xB`, `<0x1F → 9`,
   `<0x49 → 0xA`, `<0x73 → 0xB`, `<0x98 → 0xC`, else `0xD`), but sprite

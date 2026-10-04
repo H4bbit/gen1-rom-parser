@@ -213,15 +213,27 @@ The bank byte is always stored separately from the 16-bit address:
   `91 87 98 83 8E 8D 50 …` (“RHYDON” in the Gen I text encoding,
   `0x50` terminator). Text decoding itself is out of scope; only the
   addressing is established here.
-- **Evolution/level-up table**: LE addresses at file `0x3B05C` with a
-  constant bank `0x0E` (call-site constant in the reference,
-  `makeRef(0x0E, …)`). All 190 entries resolve into `0x4000–0x7FFF`
-  (none below `0x4000`, none at/above `0x8000`). Example: entry 0
-  `D8 71` → `0x71D8` + bank `0x0E` → file `0x3B1D8`.
-- **Pokédex entry table**: LE addresses at file `0x4047E` with a
-  constant bank `0x10` (reference arithmetic `pointer − 0x4000 +
-  0x40000`). All 190 entries resolve into `0x4000–0x7FFF`. Example:
-  entry 1 `09 46` → `0x4609` + bank `0x10` → file `0x40609`.
+- **Evolution/level-up and Pokédex entry tables (preliminary,
+  reference-guided hypothesis — no parser implements them yet)**:
+  LE address tables at file `0x3B05C` (evolution/level-up) and file
+  `0x4047E` (Pokédex entries), 190 entries each, are observed, and
+  every entry value falls in the banked window `0x4000–0x7FFF`
+  (none below `0x4000`, none at/above `0x8000`). What is NOT
+  observed is a stored bank byte for either table: the banks
+  (`0x0E` from a reference call-site constant, `makeRef(0x0E, …)`;
+  `0x10` from reference arithmetic, `pointer − 0x4000 + 0x40000`)
+  come from the reference, not from ROM-stored bank+address pairs
+  like the name table above (bank byte at `0x2FA3` + address at
+  `0x2FAE`). So the table bytes and the pointer-window shape are
+  observed; the bank assignments — and therefore the resolved file
+  offsets — are leads for future parser work, not closed provenance
+  on par with the name table (§1) or the types.md code references.
+  Preserved leads (hypothetical until a stored bank or a same-bank
+  code reference is found):
+  - evolution/level-up entry 0 `D8 71` → `0x71D8` +
+    reference-supplied bank `0x0E` → file `0x3B1D8`;
+  - Pokédex entry 1 `09 46` → `0x4609` + reference-supplied bank
+    `0x10` → file `0x40609`.
 - Map offset/bank tables are shared between the games for most entries:
   the first four map headers, the name bank/pointer, and the whole
   evolution table are byte-identical in Red and Blue; 23 of 248 map
@@ -237,9 +249,11 @@ The bank byte is always stored separately from the 16-bit address:
 - rejects anything else with `RangeError` (wrong window, wrong bank
   range) or `RomOutOfBoundsError` (past the loaded image).
 
-No stored bank-0 banked pointer was observed: every bank byte examined
-(map banks, tileset banks, name bank `0x07`, evolution bank `0x0E`,
-Pokédex bank `0x10`) is non-zero. Bank 0 therefore resolves
+No stored bank-0 banked pointer was observed: every stored bank byte
+examined (map banks, tileset banks, name bank `0x07`) is non-zero.
+The `0x0E`/`0x10` evolution/Pokédex banks are reference-supplied
+constants, not stored bytes (see §7.2), so they say nothing about
+stored bank 0 either way. Bank 0 therefore resolves
 arithmetically without special-casing, and the MBC3 *register-write*
 quirk stays out of stored-data resolution (see §6).
 
@@ -254,7 +268,9 @@ inside the generic resolver.
 
 - Its `makeRef(bank, buffer) = (bank << 14) + (byteVal(buffer) & 0x3FFF)`
   is arithmetically correct for every banked case examined (map,
-  tileset Block/GFX, name, evolution, Pokédex tables).
+  tileset Block/GFX, name, evolution, Pokédex tables — for the last
+  two taking the reference-supplied constant banks as given, per the
+  §7.2 preliminary note).
 - It is **incomplete, not wrong**: nothing constrains the address
   window or the bank range, and `& 0x3FFF` silently maps a fixed-window
   address like the Coll word `0x1735` into a banked file offset

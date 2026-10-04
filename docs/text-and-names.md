@@ -176,10 +176,13 @@ the games.
   punctuation beyond `'`/`.`, control codes). The reference table lists
   many more assignments, but none were verified against ROM bytes here.
   The decoder rejects them rather than inheriting the reference table.
-- **Unknown:** whether `0x50` terminates all Gen I strings or only
-  names. Established for the name table only (137 terminated + 53
-  full-length entries); other structures (dex text uses `0x50` as a
-  terminator in the reference, but that was not investigated).
+- **Unknown:** whether `0x50` terminates Gen I strings beyond the three
+  structures established here. `0x50` termination is established for
+  Pokémon names (137 terminated + 53 full-length entries in this table),
+  for move names (165 `0x50`-terminated strings, see `moves.md` §4),
+  and for type names (16 `0x50`-terminated strings, see `types.md` §2).
+  Other structures (dex text uses `0x50` as a terminator in the
+  reference, but that was not investigated) remain unknown.
 - **Unknown:** the meaning of order-table value `0x00` beyond the
   observed facts in §4 — it coincides with `MISSINGNO.` slots here, but
   glitch-name semantics are out of scope and the parser does not bless

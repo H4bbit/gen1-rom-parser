@@ -23,7 +23,8 @@ the type-effectiveness table (see `docs/rom-foundation.md`,
 implemented: the CLI builds a deterministic `{ meta, pokemon, moves,
 types }` dataset from the ROM — identity, 151 Pokémon, 165 moves,
 27 type names, and the 82-entry effectiveness table (see `docs/dataset.md`
-and Usage below).
+and Usage below). Structure evidence lives under `docs/`; all fixed
+ROM offsets are for the investigated USA/Europe SGB Enhanced dumps.
 
 ## Goals
 
