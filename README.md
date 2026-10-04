@@ -15,9 +15,11 @@ Early development, validated against real Red and Blue ROMs.
 
 The project has established its ROM-reading and identification layer plus
 the first Pokémon data structures: text decoding, the name table, the
-internal-index → Pokédex-number order table, and the base-stats table
-(see `docs/rom-foundation.md`, `docs/text-and-names.md`, and
-`docs/base-stats.md`). The first validated dataset export is already
+internal-index → Pokédex-number order table, the base-stats table, the
+move-data table, the move-name list, the type-name pointer table, and
+the type-effectiveness table (see `docs/rom-foundation.md`,
+`docs/text-and-names.md`, `docs/base-stats.md`, `docs/moves.md`, and
+`docs/types.md`). The first validated dataset export is already
 implemented: the CLI builds a deterministic dataset of 151 Pokémon
 (`dex`, decoded `name` and `baseStats`) from the ROM (see Usage below).
 
