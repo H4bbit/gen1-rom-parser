@@ -13,6 +13,7 @@ import {
 	decodeGen1MoveName,
 	decodeGen1Name,
 	decodeGen1TypeName,
+	GEN1_EFFECTIVENESS_OBSERVED_COUNT,
 	GEN1_HEADER,
 	identifyVariant,
 	RomReader,
@@ -50,5 +51,6 @@ describe("package entry (dist)", () => {
 		assert.equal(typeof readGen1TypeNameEntry, "function");
 		assert.equal(typeof decodeGen1TypeName, "function");
 		assert.equal(typeof readGen1EffectivenessTable, "function");
+		assert.equal(typeof GEN1_EFFECTIVENESS_OBSERVED_COUNT, "number");
 	});
 });
