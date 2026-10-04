@@ -33,7 +33,7 @@
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
 		"test": "node --test \"tests/*.test.ts\"",
-		"test:roms": "node --test \"tests/roms.local.test.ts\" \"tests/names.local.test.ts\" \"tests/stats.local.test.ts\" \"tests/moves.local.test.ts\" \"tests/types.local.test.ts\" \"tests/cli.local.test.ts\""
+		"test:roms": "node --test \"tests/roms.local.test.ts\" \"tests/names.local.test.ts\" \"tests/stats.local.test.ts\" \"tests/moves.local.test.ts\" \"tests/types.local.test.ts\" \"tests/learnsets.local.test.ts\" \"tests/cli.local.test.ts\""
 	},
 	"keywords": [
 		"pokemon",

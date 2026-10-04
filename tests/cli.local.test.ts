@@ -81,6 +81,15 @@ for (const { envName, label, variant, title } of cases) {
 				);
 				assert.equal(dataset.pokemon[24]?.dex, 25);
 				assert.equal(dataset.pokemon[24]?.name, "PIKACHU");
+				assert.deepEqual(dataset.pokemon[24]?.learnset, {
+					levelUp: [
+						{ level: 9, move: 86 },
+						{ level: 16, move: 98 },
+						{ level: 26, move: 129 },
+						{ level: 33, move: 97 },
+						{ level: 43, move: 87 },
+					],
+				});
 				assert.equal(dataset.types.names[23]?.id, 23);
 				assert.equal(dataset.types.names[23]?.name, "ELECTRIC");
 			});
@@ -93,7 +102,12 @@ for (const { envName, label, variant, title } of cases) {
 				assert.equal(first.stdout, second.stdout);
 				const parsed = JSON.parse(first.stdout) as {
 					meta: { variant: string };
-					pokemon: Array<{ dex: number }>;
+					pokemon: Array<{
+						dex: number;
+						learnset: {
+							levelUp: Array<{ level: number; move: number }>;
+						};
+					}>;
 					moves: Array<{ id: number }>;
 					types: {
 						names: Array<unknown>;
@@ -108,6 +122,26 @@ for (const { envName, label, variant, title } of cases) {
 				]);
 				assert.equal(parsed.meta.variant, variant);
 				assert.equal(parsed.pokemon.length, 151);
+				assert.ok(
+					parsed.pokemon.every(
+						(entry) =>
+							Array.isArray(entry.learnset?.levelUp) &&
+							entry.learnset.levelUp.every(
+								(pair) =>
+									Number.isInteger(pair.level) && Number.isInteger(pair.move),
+							),
+					),
+					"every pokemon entry carries learnset.levelUp pairs",
+				);
+				assert.deepEqual(parsed.pokemon[24]?.learnset, {
+					levelUp: [
+						{ level: 9, move: 86 },
+						{ level: 16, move: 98 },
+						{ level: 26, move: 129 },
+						{ level: 33, move: 97 },
+						{ level: 43, move: 87 },
+					],
+				});
 				assert.equal(parsed.moves.length, 165);
 				assert.equal(parsed.types.names.length, 27);
 				assert.equal(parsed.types.effectiveness.length, 82);

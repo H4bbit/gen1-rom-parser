@@ -24,6 +24,7 @@ import {
 	readAllGen1TypeNameEntries,
 	readGen1BaseStats,
 	readGen1EffectivenessTable,
+	readGen1LevelUpLearnset,
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
@@ -50,11 +51,19 @@ export interface CliPokemonBaseStats {
 	readonly padding: number;
 }
 
+export interface CliLevelUpMove {
+	readonly level: number;
+	readonly move: number;
+}
+
 export interface CliPokemonEntry {
 	/** Pokédex number; entries are ordered ascending by it. */
 	readonly dex: number;
 	readonly name: string;
 	readonly baseStats: CliPokemonBaseStats;
+	readonly learnset: {
+		readonly levelUp: ReadonlyArray<CliLevelUpMove>;
+	};
 }
 
 export interface CliMeta {
@@ -119,11 +128,12 @@ export interface CliResult {
  * one entry per Pokédex number 1–151 (each joining the decoded name
  * via the order table with its base-stats entry), one entry per move
  * id 1–165 (decoded name plus raw move-data fields), the 27 type
- * names, and the effectiveness table in ROM order. Throws the same
+ * names, and the effectiveness table in ROM order, and each species'
+ * level-up learnset. Throws the same
  * library errors (`RomIdentityError`, `Gen1OrderError`,
  * `Gen1NameError`, `Gen1StatsError`, `Gen1MoveError`,
  * `Gen1MoveNameError`, `Gen1TypeNameError`,
- * `Gen1EffectivenessError`, …) callers already handle.
+ * `Gen1EffectivenessError`, `Gen1LearnsetError`, …) callers already handle.
  */
 export function buildDataset(reader: RomReader): CliDataset {
 	const identity = identifyGen1Rom(reader);
@@ -153,6 +163,9 @@ export function buildDataset(reader: RomReader): CliDataset {
 				growthRate: stats.growthRate,
 				tmhm: [...stats.tmhm],
 				padding: stats.padding,
+			},
+			learnset: {
+				levelUp: [...readGen1LevelUpLearnset(reader, dex)],
 			},
 		});
 	}

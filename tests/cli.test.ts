@@ -11,6 +11,10 @@ import {
 	GEN1_EFFECTIVENESS_SENTINEL,
 	GEN1_EFFECTIVENESS_TABLE_OFFSET,
 } from "../src/gen1/Gen1Effectiveness.ts";
+import {
+	GEN1_LEARNSET_BANK,
+	GEN1_LEARNSET_POINTER_TABLE_OFFSET,
+} from "../src/gen1/Gen1Learnsets.ts";
 import { GEN1_MOVE_NAMES_OFFSET } from "../src/gen1/Gen1MoveNames.ts";
 import {
 	GEN1_MOVE_ENTRY_LENGTH,
@@ -164,6 +168,21 @@ function makeCliRom(): Buffer {
 	}
 	effectivenessBytes().copy(rom, GEN1_EFFECTIVENESS_TABLE_OFFSET);
 
+	// Synthetic level-up learnsets: one minimal entry per internal
+	// index used by the pokemon loop (dex d -> index d - 1 here), each
+	// with an empty evolution section and a single (level 5, move 1)
+	// pair. Placed back-to-back right after the pointer table — the
+	// same contiguous shape as the real table/data in docs/learnsets.md.
+	// Shape only; real learnsets come from the opt-in local test.
+	let learnsetOffset =
+		GEN1_LEARNSET_POINTER_TABLE_OFFSET + GEN1_ORDER_TABLE_COUNT * 2;
+	for (let index = 0; index < GEN1_ORDER_TABLE_COUNT; index++) {
+		const pointer = learnsetOffset - GEN1_LEARNSET_BANK * 0x4000 + 0x4000;
+		rom.writeUInt16LE(pointer, GEN1_LEARNSET_POINTER_TABLE_OFFSET + index * 2);
+		Buffer.from([0x00, 0x05, 0x01, 0x00]).copy(rom, learnsetOffset);
+		learnsetOffset += 4;
+	}
+
 	let headerChecksum = 0;
 	for (
 		let offset = GEN1_HEADER.headerChecksumStart;
@@ -191,6 +210,9 @@ interface CliJsonPokemon {
 	readonly dex: number;
 	readonly name: string;
 	readonly baseStats: { readonly dexNumber: number };
+	readonly learnset: {
+		readonly levelUp: Array<{ readonly level: number; readonly move: number }>;
+	};
 }
 
 interface CliJsonMove {
@@ -251,6 +273,15 @@ describe("CLI dataset builder", () => {
 			assert.equal(entry?.dex, i + 1);
 			assert.equal(entry?.name, dexName(i + 1));
 			assert.equal(entry?.baseStats.dexNumber, i + 1);
+			assert.deepEqual(Object.keys(entry ?? {}), [
+				"dex",
+				"name",
+				"baseStats",
+				"learnset",
+			]);
+			assert.deepEqual(entry?.learnset, {
+				levelUp: [{ level: 5, move: 1 }],
+			});
 		}
 		assert.equal(dataset.moves.length, GEN1_MOVE_LAST_ID);
 		for (let i = 0; i < dataset.moves.length; i++) {
@@ -383,6 +414,9 @@ describe("runCli argument and input handling", () => {
 		assert.equal(parsed.pokemon.length, 151);
 		assert.equal(parsed.pokemon[0]?.dex, 1);
 		assert.equal(parsed.pokemon[150]?.dex, 151);
+		assert.deepEqual(parsed.pokemon[0]?.learnset, {
+			levelUp: [{ level: 5, move: 1 }],
+		});
 		assert.equal(parsed.moves.length, GEN1_MOVE_LAST_ID);
 		assert.equal(parsed.moves[0]?.id, 1);
 		assert.equal(parsed.moves[164]?.id, GEN1_MOVE_LAST_ID);
@@ -423,6 +457,9 @@ describe("CLI build artifact (dist)", () => {
 		assert.equal(parsed.pokemon.length, 151);
 		assert.equal(parsed.pokemon[0]?.name, dexName(1));
 		assert.equal(typeof parsed.pokemon[0]?.baseStats, "object");
+		assert.deepEqual(parsed.pokemon[0]?.learnset, {
+			levelUp: [{ level: 5, move: 1 }],
+		});
 		assert.equal(parsed.moves.length, GEN1_MOVE_LAST_ID);
 		assert.equal(parsed.types.names.length, GEN1_TYPE_NAMES_POINTER_COUNT);
 		assert.equal(

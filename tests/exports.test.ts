@@ -15,10 +15,12 @@ import {
 	decodeGen1TypeName,
 	GEN1_EFFECTIVENESS_OBSERVED_COUNT,
 	GEN1_HEADER,
+	Gen1LearnsetError,
 	identifyVariant,
 	RomReader,
 	readGen1BaseStats,
 	readGen1EffectivenessTable,
+	readGen1LevelUpLearnset,
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
@@ -50,6 +52,8 @@ describe("package entry (dist)", () => {
 		assert.equal(typeof readGen1MoveNameEntry, "function");
 		assert.equal(typeof readGen1TypeNameEntry, "function");
 		assert.equal(typeof decodeGen1TypeName, "function");
+		assert.equal(typeof readGen1LevelUpLearnset, "function");
+		assert.equal(typeof Gen1LearnsetError, "function");
 		assert.equal(typeof readGen1EffectivenessTable, "function");
 		assert.equal(typeof GEN1_EFFECTIVENESS_OBSERVED_COUNT, "number");
 	});

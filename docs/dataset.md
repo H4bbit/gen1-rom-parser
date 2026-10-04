@@ -37,6 +37,12 @@ key order is `meta`, `pokemon`, `moves`, `types`.
         "growthRate": 3,
         "tmhm": [164, 3, 56, 192, 3, 8, 6],
         "padding": 0
+      },
+      "learnset": {
+        "levelUp": [
+          { "level": 7, "move": 73 },
+          { "level": 13, "move": 22 }
+        ]
       }
     }
   ],
@@ -65,9 +71,9 @@ key order is `meta`, `pokemon`, `moves`, `types`.
   `romSizeBytes`, `bankCount`, and the two checksum verdicts as
   booleans (`headerChecksum.valid`, `globalChecksum.valid`).
 - **pokemon** — 151 entries sorted by `dex` ascending, each with
-  `dex`, decoded `name`, and `baseStats`. Sourced from the existing
-  pokemon loop in `buildDataset` (`findGen1IndexByDex` +
-  `decodeGen1Name` + `readGen1BaseStats`). The `baseStats` object
+  `dex`, decoded `name`, `baseStats`, and `learnset`. Sourced from
+  the existing pokemon loop in `buildDataset` (`findGen1IndexByDex` +
+  `decodeGen1Name` + `readGen1BaseStats` + `readGen1LevelUpLearnset`). The `baseStats` object
   matches `CliPokemonBaseStats` in `src/cli.ts` field for field:
   `dexNumber` (the stored entry id, same value as the parent `dex` —
   both are emitted), `hp`, `attack`, `defense`, `speed`, `special`,
@@ -77,6 +83,14 @@ key order is `meta`, `pokemon`, `moves`, `types`.
   move; the move table itself is in `moves.md`), `growthRate`,
   `tmhm` as a plain `number[]` (raw 7-byte bitfield; no bit is
   decoded here), and `padding` (the raw trailing byte).
+- **pokemon.learnset** — `{ levelUp: [{ level, move }, …] }` from
+  `readGen1LevelUpLearnset` (ROM order, never sorted; see
+  `learnsets.md`). `level` is the raw stored level, `move` is the raw
+  move id 1–165 (the move table itself is in `moves.md`). Empty arrays
+  are ROM data: 12 real species have truly empty learnsets in both
+  dumps (dex 10, 11, 13, 14, 26, 36, 38, 40, 59, 63, 121, 132 — see
+  `learnsets.md` §5). Evolution records are skipped, not exposed;
+  TM/HM decoding is out of scope here.
 - **moves** — exactly ids 1–165 in order. `name` from the move-name
   decoder (`readGen1MoveNameEntry` + `decodeGen1MoveName`); numeric
   fields from `readGen1MoveData` (`animationId`, raw `effect`,

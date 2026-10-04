@@ -16,6 +16,22 @@ export {
 	readGen1EffectivenessTable,
 } from "./gen1/Gen1Effectiveness.ts";
 export {
+	GEN1_LEARNSET_BANK,
+	GEN1_LEARNSET_FIRST_MOVE_ID,
+	GEN1_LEARNSET_LAST_MOVE_ID,
+	GEN1_LEARNSET_MAX_ENTRY_BYTES,
+	GEN1_LEARNSET_MAX_LEVEL,
+	GEN1_LEARNSET_MIN_LEVEL,
+	GEN1_LEARNSET_POINTER_TABLE_COUNT,
+	GEN1_LEARNSET_POINTER_TABLE_OFFSET,
+	GEN1_LEARNSET_SENTINEL,
+	Gen1LearnsetError,
+	type Gen1LevelUpMove,
+	gen1LearnsetEntryOffset,
+	readGen1LevelUpLearnset,
+	readGen1LevelUpLearnsetByIndex,
+} from "./gen1/Gen1Learnsets.ts";
+export {
 	GEN1_MOVE_NAME_MAX_LENGTH,
 	GEN1_MOVE_NAME_MIN_LENGTH,
 	GEN1_MOVE_NAMES_COUNT,
