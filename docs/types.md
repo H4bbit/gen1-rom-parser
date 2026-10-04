@@ -15,14 +15,11 @@ Conventions follow `rom-foundation.md`:
 - **Assumption** — believed but not fully established.
 - **Unknown** — intentionally left unresolved.
 
-## 1. Correction to the Phase 1 report (observed fact)
+## 1. Stored-reference search results (observed fact)
 
-The Phase 1 report cited the searches `ae 5d` and `e4 5d`. That was a
-reporting error: the pointer bytes actually read from the table are
-`e4 7d` (NORMAL) and `ae 7d` is the table's own address (see §2). The
-searches that were actually executed and reported with contexts were
-`ae 5d` (wrong) and `e4 5d` (wrong). The addendum re-ran the correct
-searches over the whole ROM:
+Whole-ROM searches for the little-endian addresses of the two
+structures (pointer-table base `ae 7d` = CPU `0x7DAE`, effectiveness
+base `74 64` = CPU `0x6474`, NORMAL pointer bytes `e4 7d`):
 
 - **Observed fact:** `ae 7d` occurs exactly once in either ROM, at file
   `0x27DA1` (bank 9) — as the operand of the `LD HL,$7DAE`
@@ -143,8 +140,9 @@ interpretation):** of the 5 ROM-wide hits, `0x3E3F8` and `0x3E459`
 
 **Provenance (implementation decision):** both locations are therefore
 recorded at three distinct levels, never conflated:
- (a) no stored bank+address pair exists for either table (correct —
- same-bank references need none);
+ (a) no stored bank+address pair was found for either table; none is
+expected in a same-bank reference, which carries no bank byte by
+construction;
  (b) a same-bank address load in code references each table
  (`LD HL,$7DAE` at `0x27DA0`, `LD HL,$6474` at `0x3E3F7`/`0x3E458`) —
  interpretation of code, kept as cross-evidence only;
