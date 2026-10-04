@@ -57,6 +57,11 @@ function makeRomWithNormalAndFire(): RomReader {
 			bytes: [0x8d, 0x8e, 0x91, 0x8c, 0x80, 0x8b, 0x50],
 		},
 		{
+			// Preceding terminator so FIRE starts a string, as in the ROM.
+			offset: stringOffsetFor(0x7e02) - 1,
+			bytes: [0x50],
+		},
+		{
 			offset: stringOffsetFor(0x7e02),
 			bytes: [0x85, 0x88, 0x91, 0x84, 0x50],
 		},
@@ -111,6 +116,20 @@ describe("type-name pointer table", () => {
 		const reader = makeRomWithTypePointers(
 			[0x4000],
 			[{ offset: stringOffsetFor(0x4000), bytes: [0x8d, 0x50] }],
+		);
+		assert.throws(() => readGen1TypeNameEntry(reader, 0x00), Gen1TypeNameError);
+	});
+
+	it("rejects a pointer into the middle of a string", () => {
+		// Pointer targets the second byte of NORMAL instead of its start.
+		const reader = makeRomWithTypePointers(
+			[0x7de5],
+			[
+				{
+					offset: stringOffsetFor(0x7de4),
+					bytes: [0x8d, 0x8e, 0x91, 0x8c, 0x80, 0x8b, 0x50],
+				},
+			],
 		);
 		assert.throws(() => readGen1TypeNameEntry(reader, 0x00), Gen1TypeNameError);
 	});

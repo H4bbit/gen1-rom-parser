@@ -63,8 +63,9 @@ function assertValidTypeId(typeId: number): void {
  * Reads the raw bytes of the type-name string for a type id, without
  * the 0x50 terminator. The pointer is resolved within the table's own
  * ROM bank (same-bank reference — see docs/types.md), and the target
- * must be a 0x50-terminated string inside the observed name region.
- * Returns a copy.
+ * must be the start of a 0x50-terminated string inside the observed
+ * name region: the region start itself, or an offset whose preceding
+ * byte is the 0x50 terminator of the previous string. Returns a copy.
  */
 export function readGen1TypeNameEntry(
 	reader: RomReader,
@@ -83,6 +84,16 @@ export function readGen1TypeNameEntry(
 			`Type-name pointer for id 0x${typeId.toString(16).padStart(2, "0")} ` +
 				`resolves to offset 0x${stringOffset.toString(16)} ` +
 				`(expected within 0x${GEN1_TYPE_NAMES_REGION_START.toString(16)}–0x${(GEN1_TYPE_NAMES_REGION_END - 1).toString(16)})`,
+		);
+	}
+	if (
+		stringOffset !== GEN1_TYPE_NAMES_REGION_START &&
+		reader.byteAt(stringOffset - 1) !== GEN1_TEXT_TERMINATOR
+	) {
+		throw new Gen1TypeNameError(
+			`Type-name pointer for id 0x${typeId.toString(16).padStart(2, "0")} ` +
+				`resolves to offset 0x${stringOffset.toString(16)}, ` +
+				`which is not the start of a 0x50-terminated string`,
 		);
 	}
 	const maxEnd = Math.min(
