@@ -20,8 +20,10 @@ move-data table, the move-name list, the type-name pointer table, and
 the type-effectiveness table (see `docs/rom-foundation.md`,
 `docs/text-and-names.md`, `docs/base-stats.md`, `docs/moves.md`, and
 `docs/types.md`). The first validated dataset export is already
-implemented: the CLI builds a deterministic dataset of 151 Pokémon
-(`dex`, decoded `name` and `baseStats`) from the ROM (see Usage below).
+implemented: the CLI builds a deterministic `{ meta, pokemon, moves,
+types }` dataset from the ROM — identity, 151 Pokémon, 165 moves,
+27 type names, and the 82-entry effectiveness table (see `docs/dataset.md`
+and Usage below).
 
 ## Goals
 
@@ -117,9 +119,9 @@ banner out of the redirected JSON, so `dataset.json` contains only the
 CLI's own stdout.)
 
 It takes exactly one ROM path (a Pokémon Red or Blue ROM file) and prints
-`{ "rom": { "variant" }, "pokemon": [...] }` (151 entries sorted by
-Pokédex number, each with `dex`, decoded `name` and `baseStats`) to
-stdout. `-h`/`--help` prints `Usage: gen1-rom-parser <rom-path>` on
+`{ "meta", "pokemon", "moves", "types" }` (see `docs/dataset.md`:
+identity, 151 Pokémon sorted by Pokédex number, 165 moves, 27 type
+names, and the 82-entry effectiveness table in ROM order) to stdout. `-h`/`--help` prints `Usage: gen1-rom-parser <rom-path>` on
 stdout with a zero exit code. Any other invalid invocation (missing path,
 extra arguments, unreadable file, invalid ROM) reports an `Error: ...`
 on stderr followed by the usage line, with a non-zero exit code.

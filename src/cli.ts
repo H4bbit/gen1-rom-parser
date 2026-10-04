@@ -10,13 +10,22 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
+	decodeGen1MoveName,
 	decodeGen1Name,
+	decodeGen1TypeName,
 	findGen1IndexByDex,
 	GEN1_BASE_STATS_MAX_DEX,
+	GEN1_MOVE_FIRST_ID,
+	GEN1_MOVE_LAST_ID,
+	GEN1_TYPE_FIRST_ID,
 	type Gen1Variant,
 	identifyGen1Rom,
 	RomReader,
+	readAllGen1TypeNameEntries,
 	readGen1BaseStats,
+	readGen1EffectivenessTable,
+	readGen1MoveData,
+	readGen1MoveNameEntry,
 	readGen1NameEntry,
 } from "./index.ts";
 
@@ -48,11 +57,53 @@ export interface CliPokemonEntry {
 	readonly baseStats: CliPokemonBaseStats;
 }
 
+export interface CliMeta {
+	readonly variant: Gen1Variant;
+	readonly title: string;
+	readonly romSizeBytes: number;
+	readonly bankCount: number;
+	readonly headerChecksumValid: boolean;
+	readonly globalChecksumValid: boolean;
+}
+
+export interface CliMoveEntry {
+	readonly id: number;
+	readonly name: string;
+	readonly animationId: number;
+	/** Raw effect id. No effect enum exists at this layer. */
+	readonly effect: number;
+	/** Raw base power (0 for non-damaging moves). */
+	readonly power: number;
+	/** Raw type id. No type enum exists at this layer. */
+	readonly type: number;
+	/** Raw accuracy byte (0–255 scale, not percent). Exposed unconverted. */
+	readonly accuracy: number;
+	/** Raw base PP. */
+	readonly pp: number;
+}
+
+export interface CliTypeNameEntry {
+	readonly id: number;
+	readonly name: string;
+}
+
+export interface CliEffectivenessEntry {
+	/** Raw attacking type id. No type enum exists at this layer. */
+	readonly attacker: number;
+	/** Raw defending type id. No type enum exists at this layer. */
+	readonly defender: number;
+	/** Raw multiplier byte. Exposed unconverted. */
+	readonly multiplier: number;
+}
+
 export interface CliDataset {
-	readonly rom: {
-		readonly variant: Gen1Variant;
-	};
+	readonly meta: CliMeta;
 	readonly pokemon: ReadonlyArray<CliPokemonEntry>;
+	readonly moves: ReadonlyArray<CliMoveEntry>;
+	readonly types: {
+		readonly names: ReadonlyArray<CliTypeNameEntry>;
+		readonly effectiveness: ReadonlyArray<CliEffectivenessEntry>;
+	};
 }
 
 export interface CliResult {
@@ -65,10 +116,14 @@ export interface CliResult {
 
 /**
  * Builds the exportable dataset for an already-loaded ROM: identity plus
- * one entry per Pokédex number 1–151, each joining the decoded name
- * (via the order table) with its base-stats entry. Throws the same
+ * one entry per Pokédex number 1–151 (each joining the decoded name
+ * via the order table with its base-stats entry), one entry per move
+ * id 1–165 (decoded name plus raw move-data fields), the 27 type
+ * names, and the effectiveness table in ROM order. Throws the same
  * library errors (`RomIdentityError`, `Gen1OrderError`,
- * `Gen1NameError`, `Gen1StatsError`, …) callers already handle.
+ * `Gen1NameError`, `Gen1StatsError`, `Gen1MoveError`,
+ * `Gen1MoveNameError`, `Gen1TypeNameError`,
+ * `Gen1EffectivenessError`, …) callers already handle.
  */
 export function buildDataset(reader: RomReader): CliDataset {
 	const identity = identifyGen1Rom(reader);
@@ -101,7 +156,46 @@ export function buildDataset(reader: RomReader): CliDataset {
 			},
 		});
 	}
-	return { rom: { variant: identity.variant }, pokemon };
+	const moves: Array<CliMoveEntry> = [];
+	for (let id = GEN1_MOVE_FIRST_ID; id <= GEN1_MOVE_LAST_ID; id++) {
+		const data = readGen1MoveData(reader, id);
+		const name = decodeGen1MoveName([...readGen1MoveNameEntry(reader, id)]);
+		moves.push({
+			id,
+			name,
+			animationId: data.animationId,
+			effect: data.effect,
+			power: data.power,
+			type: data.type,
+			accuracy: data.accuracy,
+			pp: data.pp,
+		});
+	}
+	const names: Array<CliTypeNameEntry> = readAllGen1TypeNameEntries(reader).map(
+		(entry, index) => ({
+			id: GEN1_TYPE_FIRST_ID + index,
+			name: decodeGen1TypeName([...entry]),
+		}),
+	);
+	const effectiveness: Array<CliEffectivenessEntry> =
+		readGen1EffectivenessTable(reader).map((entry) => ({
+			attacker: entry.attacker,
+			defender: entry.defender,
+			multiplier: entry.multiplier,
+		}));
+	return {
+		meta: {
+			variant: identity.variant,
+			title: identity.title,
+			romSizeBytes: identity.romSizeBytes,
+			bankCount: identity.bankCount,
+			headerChecksumValid: identity.headerChecksum.valid,
+			globalChecksumValid: identity.globalChecksum.valid,
+		},
+		pokemon,
+		moves,
+		types: { names, effectiveness },
+	};
 }
 
 const CLI_USAGE = "Usage: gen1-rom-parser <rom-path>";
