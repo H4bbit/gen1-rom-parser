@@ -3,8 +3,8 @@
 // Charsets are per structure: uppercase A–Z plus the terminator are
 // shared, but special bytes are scoped to the table they were observed
 // in (see docs/text-and-names.md for Pokémon names, docs/moves.md for
-// move names). Anything else is rejected explicitly instead of being
-// guessed.
+// move names, docs/types.md for type names). Anything else is rejected
+// explicitly instead of being guessed.
 
 /** Byte that terminates a Gen I name string. */
 export const GEN1_TEXT_TERMINATOR = 0x50;
@@ -104,6 +104,24 @@ export const GEN1_TEXT_MOVE_SPECIALS: Readonly<Record<number, string>> = {
  */
 export function decodeGen1MoveName(entry: readonly number[]): string {
 	return decodeWithSpecials(entry, GEN1_TEXT_MOVE_SPECIALS);
+}
+
+/**
+ * Special bytes observed inside real type names: none. The 16 type
+ * names at file 0x27DE4–0x27E49 contain only A–Z (see docs/types.md).
+ * The empty map keeps this decoder exactly as strong as its own ROM
+ * evidence: it rejects every special byte from the other tables.
+ */
+export const GEN1_TEXT_TYPE_SPECIALS: Readonly<Record<number, string>> = {};
+
+/**
+ * Decodes a Gen I type-name string: bytes up to (not including) the
+ * first 0x50 terminator, using A–Z only. Throws Gen1TextError on any
+ * other byte, including the Pokémon-name and move-name specials,
+ * which were never observed in type names.
+ */
+export function decodeGen1TypeName(entry: readonly number[]): string {
+	return decodeWithSpecials(entry, GEN1_TEXT_TYPE_SPECIALS);
 }
 
 function decodeWithSpecials(

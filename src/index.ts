@@ -55,6 +55,7 @@ export {
 export {
 	decodeGen1MoveName,
 	decodeGen1Name,
+	decodeGen1TypeName,
 	GEN1_TEXT_AZ_MAX,
 	GEN1_TEXT_AZ_MIN,
 	GEN1_TEXT_MOVE_HYPHEN,
@@ -63,8 +64,22 @@ export {
 	GEN1_TEXT_PADDING,
 	GEN1_TEXT_SPECIALS,
 	GEN1_TEXT_TERMINATOR,
+	GEN1_TEXT_TYPE_SPECIALS,
 	Gen1TextError,
 } from "./gen1/Gen1Text.ts";
+export {
+	GEN1_TYPE_FIRST_ID,
+	GEN1_TYPE_LAST_ID,
+	GEN1_TYPE_NAME_MAX_LENGTH,
+	GEN1_TYPE_NAME_MIN_LENGTH,
+	GEN1_TYPE_NAMES_POINTER_COUNT,
+	GEN1_TYPE_NAMES_POINTER_TABLE_OFFSET,
+	GEN1_TYPE_NAMES_REGION_END,
+	GEN1_TYPE_NAMES_REGION_START,
+	Gen1TypeNameError,
+	readAllGen1TypeNameEntries,
+	readGen1TypeNameEntry,
+} from "./gen1/Gen1TypeNames.ts";
 export {
 	type ChecksumInfo,
 	type ChecksumVerdict,

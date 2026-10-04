@@ -12,6 +12,7 @@ import { describe, it } from "node:test";
 import {
 	decodeGen1MoveName,
 	decodeGen1Name,
+	decodeGen1TypeName,
 	GEN1_HEADER,
 	identifyVariant,
 	RomReader,
@@ -19,6 +20,7 @@ import {
 	readGen1MoveData,
 	readGen1MoveNameEntry,
 	readGen1NameEntry,
+	readGen1TypeNameEntry,
 } from "gen1-rom-parser";
 
 describe("package entry (dist)", () => {
@@ -44,5 +46,7 @@ describe("package entry (dist)", () => {
 		assert.equal(reader.readUInt16LE(0), 0x1234);
 		assert.equal(typeof readGen1MoveData, "function");
 		assert.equal(typeof readGen1MoveNameEntry, "function");
+		assert.equal(typeof readGen1TypeNameEntry, "function");
+		assert.equal(typeof decodeGen1TypeName, "function");
 	});
 });
